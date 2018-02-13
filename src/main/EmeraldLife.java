@@ -15,58 +15,74 @@ import premiumReconciliator.PremiumReconciliator;
  */
 public class EmeraldLife {
 
-    private static String SYSTEM_OS	= System.getProperty("os.name");
-    private static String LINUX_OS 	= "Linux";
-    private static String WINDOWS_OS	= "Windows";
+    private static String SYSTEM_OS = System.getProperty("os.name");
+    private static String LINUX_OS = "Linux";
+    private static String WINDOWS_OS = "Windows";
+
     /**
      * @param args
      */
     public static void main(String[] args) {
-	int option = Console.generateMainMenu();
+	GUI mainMenu = new GUI();
 
-	switch (option) {
-	case (Console.DEFAULT_CODE):
-	    System.out.println("No valid option collected, exiting...");
-	    System.exit(0);
-	    break;
-	case (Console.EXIT_CODE):
-	    System.out.println("Exiting...");
-	    System.exit(0);
-	    break;
-	case (Console.PREMIUM_RECONCILIATOR):
-	    File template = null;
-	    File target = null;
-	    JFileChooser fileChooser = new JFileChooser();
-	    
-	    fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-
-	    if (SYSTEM_OS.contains(LINUX_OS))
-		fileChooser.setCurrentDirectory(new java.io.File(System.getenv("HOME")));
-	    else if (SYSTEM_OS.contains(WINDOWS_OS))
-		fileChooser.setCurrentDirectory(new java.io.File("C:\\"));
-
-	    fileChooser.setDialogTitle("Select template file");
-
-	    if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-		template = fileChooser.getSelectedFile();
-	    } else {
-		System.out.println("Operation cancelled by user, exiting...");
-		System.exit(0);
+	int option = -1;
+	while (!mainMenu.hasClicked()) {
+	    try {
+		Thread.sleep(10);
+	    } catch (InterruptedException e) {
+		e.printStackTrace();
 	    }
-	    
-	    fileChooser.setDialogTitle("Select file to reconcile");
-
-	    if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-		target = fileChooser.getSelectedFile();
+	    if (mainMenu.hasClicked()) {
+		option = mainMenu.getOption();
+		mainMenu.resetOptions();
 	    } else {
-		System.out.println("Operation cancelled by user, exiting...");
-		System.exit(0);
-	    }
+		switch (option) {
+		case (GUI.DEFAULT_CODE):
+		    // Continue
+		    break;
+		case (GUI.EXIT_CODE):
+		    System.out.println("Exiting...");
+		    System.exit(0);
+		    break;
+		case (GUI.PREMIUM_RECONCILIATOR):
+		    File template = null;
+		    File target = null;
+		    JFileChooser fileChooser = new JFileChooser();
 
-	    PremiumReconciliator.reconcile(template, target);
-	    break;
+		    fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+
+		    if (SYSTEM_OS.contains(LINUX_OS))
+			fileChooser.setCurrentDirectory(new java.io.File(System.getenv("HOME")));
+		    else if (SYSTEM_OS.contains(WINDOWS_OS))
+			fileChooser.setCurrentDirectory(new java.io.File("C:\\"));
+
+		    fileChooser.setDialogTitle("Select template file");
+
+		    if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			template = fileChooser.getSelectedFile();
+		    } else {
+			System.out.println("Operation cancelled by user, exiting...");
+			option = GUI.DEFAULT_CODE;
+			break;
+		    }
+
+		    fileChooser.setDialogTitle("Select file to reconcile");
+
+		    if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			target = fileChooser.getSelectedFile();
+		    } else {
+			System.out.println("Operation cancelled by user, exiting...");
+			option = GUI.DEFAULT_CODE;
+			break;
+		    }
+
+		    PremiumReconciliator.reconcile(template, target);
+		    break;
+		}
+
+	    }
 	}
-	
+
 	System.exit(0);
     }
 
